@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-TeasyBot.Service-F58A946C-35E6-4B14-8146-A92F4C0EE382</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Discord.Net" Version="3.18.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="9.0.9" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TeasyBot.Common\TeasyBot.Common.csproj" />
+    <ProjectReference Include="..\TeasyBot.Database\TeasyBot.Database.csproj" />
+    <ProjectReference Include="..\TeasyBot.Discord.Sender\TeasyBot.Discord.Sender.csproj" />
+    <ProjectReference Include="..\TeasyBot.Discord\TeasyBot.Discord.csproj" />
+    <ProjectReference Include="..\TeasyBot.Hint\TeasyBot.Hint.csproj" />
+    <ProjectReference Include="..\TeasyBot.Lovense\TeasyBot.Lovense.csproj" />
+  </ItemGroup>
+</Project>
