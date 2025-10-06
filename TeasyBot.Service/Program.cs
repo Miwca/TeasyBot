@@ -14,7 +14,6 @@ IHost host = Host.CreateDefaultBuilder(args)
         var configuration = hostContext.Configuration;
         services.RegisterDependencies(configuration);
     })
-    .UseWindowsService()
     .Build();
 
 await host.RunAsync();
