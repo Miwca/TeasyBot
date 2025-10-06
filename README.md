@@ -1,10 +1,10 @@
-<img src="https://i.imgur.com/6sDmCPQ.png" width="100" height="100" align="right" />
+<img src="https://github.com/Miwca/TeasyBot/blob/main/Images/Teasy.png?raw=true" width="100" height="100" align="right" />
 
-# Naughty Bunny Bot
-Bot has been made by **Miwca** and **Lat3xKitty**. Art has been provided by **EmiTheGoat**. 
+# Teasy Bot
+Bot has been made and rebranded by **Miwca** and **Lat3xKitty**.
 
 ## Description
-Developed for the Lovense Easter Dev Jam "Egg Hunt" challenge, Naughty Bunny Bot is a Discord bot that allows users to do a mini server wide egg hunt. The bot will randomly place eggs in the server and users can interact with the egg (via a button). The user with the most eggs at the end of the event wins.
+First developed for the Lovense Easter Dev Jam "Egg Hunt" challenge, Naughty Bunny Bot was a Discord bot that allowed users to do a mini server wide egg hunt - Now renamed and refactored to tease new product releases for Lovense. The bot will randomly place hints in the server and users can interact with the hint (via a button). The user with the most eggs at the end of the event wins.
 
 ## Setup (Backend)
 Initial Requirements:
