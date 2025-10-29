@@ -4,21 +4,21 @@ using Microsoft.Extensions.Options;
 using TeasyBot.Cache.Services.Abstractions;
 using TeasyBot.Database.Services.Abstractions;
 using TeasyBot.Discord.Sender.Abstractions;
-using TeasyBot.Egg.Abstractions;
-using TeasyBot.Egg.Dtos;
-using TeasyBot.Egg.Services.Abstractions;
-using TeasyBot.Egg.Settings;
+using TeasyBot.Hint.Settings;
+using TeasyBot.Hint.Abstractions;
+using TeasyBot.Hint.Dtos;
+using TeasyBot.Hint.Services.Abstractions;
 using TeasyBot.Lovense.Dtos;
 using TeasyBot.Lovense.Exceptions;
 using TeasyBot.Lovense.Services.Abstractions;
 
-namespace TeasyBot.Egg
+namespace TeasyBot.Hint
 {
-    public class EggHunt : IEggHunt
+    public class HintHunt : IHintHunt
     {
-        private readonly ILogger<EggHunt> _logger;
-        private readonly IEggHuntService _eggHuntService;
-        private readonly IEggService _eggService;
+        private readonly ILogger<HintHunt> _logger;
+        private readonly IHintHuntService _hintHuntService;
+        private readonly IHintService _hintService;
         private readonly IApprovedChannelsService _channelsService;
         private readonly IDiscordMessageSender _messageSender;
         private readonly IMemoryCacheService _cacheService;
@@ -26,17 +26,17 @@ namespace TeasyBot.Egg
         private readonly IWebHookMessageSender _webHookMessageSender;
 
         private readonly Random _random;
-        private readonly EggHuntConfig _config;
+        private readonly HintHuntConfig _config;
 
-        public EggHunt(ILogger<EggHunt> logger, IEggHuntService eggHuntService, 
-            IEggService eggService, IApprovedChannelsService channelService,
+        public HintHunt(ILogger<HintHunt> logger, IHintHuntService hintHuntService, 
+            IHintService hintService, IApprovedChannelsService channelService,
             IDiscordMessageSender messageSender, IMemoryCacheService cacheService, 
             ILovenseService lovenseService, IWebHookMessageSender webHookMessageSender, 
-            IOptions<EggHuntConfig> config)
+            IOptions<HintHuntConfig> config)
         {
             _logger = logger;
-            _eggHuntService = eggHuntService;
-            _eggService = eggService;
+            _hintHuntService = hintHuntService;
+            _hintService = hintService;
             _channelsService = channelService;
             _messageSender = messageSender;
             _cacheService = cacheService;
@@ -47,60 +47,60 @@ namespace TeasyBot.Egg
             _config = config.Value;
         }
 
-        public async Task StartEggHuntForGuildAsync(string guildId)
+        public async Task StartHintHuntForGuildAsync(string guildId)
         {
-            var hunt = _eggHuntService.GetEggHuntForGuild(guildId);
+            var hunt = _hintHuntService.GetHintHuntForGuild(guildId);
             if (hunt is { Enabled: true }) return;
 
             _cacheService.Set($"{guildId}-hunt-ongoing", false);
 
-            _eggHuntService.EnableEggHuntForGuild(guildId);
-            _logger.LogDebug($"Egg hunt started for guild with ID {guildId}");
+            _hintHuntService.EnableHintHuntForGuild(guildId);
+            _logger.LogDebug($"Hint hunt started for guild with ID {guildId}");
 
             var timer = new PeriodicTimer(TimeSpan.FromSeconds(_config.TimerSeconds));
             var messageId = string.Empty;
             while (await timer.WaitForNextTickAsync())
             {
-                hunt = _eggHuntService.GetEggHuntForGuild(guildId);
+                hunt = _hintHuntService.GetHintHuntForGuild(guildId);
                 if (hunt is not { Enabled: true })
                 {
-                    _logger.LogDebug($"Egg hunt is no longer ongoing for {guildId}. Stopping game loop...");
+                    _logger.LogDebug($"Hint hunt is no longer ongoing for {guildId}. Stopping game loop...");
                     return;
                 }
 
                 var ongoing = _cacheService.Get<bool>($"{guildId}-hunt-ongoing");
                 if (ongoing)
                 {
-                    _logger.LogDebug("Hunt is still ongoing. No need to drop a new egg now...");
+                    _logger.LogDebug("Hunt is still ongoing. No need to drop a new hint now...");
                     continue;
                 }
 
                 if (hunt.Participants.Count == 0)
                 {
-                    _logger.LogDebug("No participants. Not dropping any eggs.");
+                    _logger.LogDebug("No participants. Not dropping any hints.");
                     continue;
                 }
 
                 if (_random.Next(_config.Probability) > _config.Chance)
                 {
-                    _logger.LogDebug("Probability to drop egg not hit...");
+                    _logger.LogDebug("Probability to drop hint not hit...");
                     continue;
                 }
 
                 var channels = await _channelsService.GetApprovedChannelByGuildAsync(guildId);
                 var channelsArr = channels.ToArray();
-                var eggChannel = _random.Next(channelsArr.Length);
+                var hintChannel = _random.Next(channelsArr.Length);
 
                 for (var i = 0; i < channelsArr.Length; i++)
                 {
                     IUserMessage? message;
-                    if (i == eggChannel)
+                    if (i == hintChannel)
                     {
-                        message = await BuildEggEmbedAsync(_eggService.GetRandomEgg(), channelsArr[i].ChannelId);
+                        message = await BuildHintEmbedAsync(_hintService.GetRandomHint(), channelsArr[i].ChannelId);
                     }
                     else
                     {
-                        message = await BuildDudEmbedAsync(_eggService.GetRandomDud(), channelsArr[i].ChannelId);
+                        message = await BuildDudEmbedAsync(_hintService.GetRandomDud(), channelsArr[i].ChannelId);
                     }
 
                     _cacheService.Set($"{message!.Id}-participant-count", hunt.Participants.Count);
@@ -111,10 +111,10 @@ namespace TeasyBot.Egg
             }
         }
 
-        public Task StopEggHuntForGuild(string guildId)
+        public Task StopHintHuntForGuild(string guildId)
         {
-            _eggHuntService.DisableEggHuntForGuild(guildId);
-            _logger.LogDebug($"Egg hunt stopped for guild with ID {guildId}, no more eggs will be dropped, any existing eggs can still be collected.");
+            _hintHuntService.DisableHintHuntForGuild(guildId);
+            _logger.LogDebug($"Hint hunt stopped for guild with ID {guildId}, no more hints will be dropped, any existing hints can still be collected.");
 
             return Task.CompletedTask;
         }
@@ -164,17 +164,17 @@ namespace TeasyBot.Egg
             }
         }
 
-        private async Task<IUserMessage?> BuildEggEmbedAsync(EggDto egg, string channelId)
+        private async Task<IUserMessage?> BuildHintEmbedAsync(HintDto hint, string channelId)
         {
             var embedBuilder = new EmbedBuilder()
-                .WithTitle(egg.Name)
-                .WithDescription(egg.Description)
-                .WithImageUrl(egg.ImageUrl)
+                .WithTitle(hint.Name)
+                .WithDescription(hint.Description)
+                .WithImageUrl(hint.ImageUrl)
                 .WithColor(Color.Purple)
                 .WithFooter("TeasyBot - Made by @miwca and @kitty_cass");
 
             var componentBuilder = new ComponentBuilder()
-                .WithButton("Collect Egg", $"find-{egg.Name}", ButtonStyle.Success);
+                .WithButton("Collect Hint", $"find-{hint.Name}", ButtonStyle.Success);
 
             return await _messageSender.SendMessageToChannelAsync(channelId, embedBuilder, componentBuilder);
         }

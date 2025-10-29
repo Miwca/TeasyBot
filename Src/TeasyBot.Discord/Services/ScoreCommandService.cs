@@ -47,7 +47,7 @@ public class ScoreCommandService : IScoreCommandService
             {
                 index++;
 
-                desc.AppendLine($"{index}. **<@{entry.UserId}>** - {entry.Score} Eggs");
+                desc.AppendLine($"{index}. **<@{entry.UserId}>** - {entry.Score} Hints");
             }
             
             embedBuilder.WithDescription(desc.ToString());

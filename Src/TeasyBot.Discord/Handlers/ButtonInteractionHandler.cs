@@ -17,7 +17,7 @@ public class ButtonInteractionHandler
     public async Task ButtonExecutedAsync(SocketMessageComponent component)
     {
         if (component.Data.CustomId.IndexOf("find-", StringComparison.Ordinal) == 0) {
-            await _buttonInteractionService.FindEggButtonHandler(component);
+            await _buttonInteractionService.FindHintButtonHandler(component);
             return;
         }
 
@@ -31,8 +31,8 @@ public class ButtonInteractionHandler
                 await _buttonInteractionService.LeaveButtonHandler(component);
                 break;
 
-            case "test-egg":
-                await _buttonInteractionService.SendTestEggButtonHandler(component);
+            case "test-hint":
+                await _buttonInteractionService.SendTestHintButtonHandler(component);
                 break;
 
 

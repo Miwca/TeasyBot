@@ -1,5 +1,5 @@
-﻿using System.Data.SqlClient;
-using Dapper;
+﻿using Dapper;
+using MySqlConnector;
 using TeasyBot.Database.Repositories.Abstractions;
 using TeasyBot.Leaderboard.Dtos;
 
@@ -28,17 +28,17 @@ VALUES (
 	@Id,
     @UserId,  
 	@GuildId
-)
+);
 
 SELECT Id,
     UserId,
     GuildId,
     Score
 FROM Leaderboard
-WHERE Id = @Id
+WHERE Id = @Id;
 ";
 
-            await using var connection = new SqlConnection(_connectionString);
+            await using var connection = new MySqlConnection(_connectionString);
             return connection.Query<LeaderboardDto>(sql, new
             {
                 Id = id,
@@ -50,17 +50,17 @@ WHERE Id = @Id
         public async Task<IEnumerable<LeaderboardDto>> GetGuildTopLeaderboardAsync(string guildId, int top)
         {
             const string sql = @"
-SELECT TOP(@Top)
-    Id,
+SELECT Id,
     UserId,
     GuildId,
     Score
 FROM Leaderboard
 WHERE GuildId = @GuildId
 ORDER BY Score DESC
+LIMIT @Top;
 ";
 
-            await using var connection = new SqlConnection(_connectionString);
+            await using var connection = new MySqlConnection(_connectionString);
             return connection.Query<LeaderboardDto>(sql, new
             {
                 GuildId = guildId,
@@ -77,10 +77,10 @@ SELECT Id,
     Score
 FROM Leaderboard
 WHERE GuildId = @GuildId
-AND UserId = @UserId
+AND UserId = @UserId;
 ";
 
-            await using var connection = new SqlConnection(_connectionString);
+            await using var connection = new MySqlConnection(_connectionString);
             return connection.Query<LeaderboardDto>(sql, new
             {
                 GuildId = guildId,
@@ -93,17 +93,17 @@ AND UserId = @UserId
             const string sql = @"
 UPDATE Leaderboard
 SET Score = @Score
-WHERE Id = @Id
+WHERE Id = @Id;
 
 SELECT Id,
     UserId,
     GuildId,
     Score
 FROM Leaderboard
-WHERE Id = @Id
+WHERE Id = @Id;
 ";
 
-            await using var connection = new SqlConnection(_connectionString);
+            await using var connection = new MySqlConnection(_connectionString);
             return connection.Query<LeaderboardDto>(sql, new
             {
                 Id = id,

@@ -15,15 +15,16 @@ using TeasyBot.Lovense.Services.Abstractions;
 using TeasyBot.Lovense.Services;
 using TeasyBot.Discord;
 using TeasyBot.Discord.Sender;
-using TeasyBot.Egg.Services;
-using TeasyBot.Egg.Services.Abstractions;
-using TeasyBot.Egg.Settings;
+using TeasyBot.Hint.Settings;
 using TeasyBot.Lovense;
 using TeasyBot.Lovense.Abstractions;
 using TeasyBot.Discord.Sender.Abstractions;
 using TeasyBot.Discord.Sender.Settings;
-using TeasyBot.Egg;
-using TeasyBot.Egg.Abstractions;
+using TeasyBot.Hint;
+using TeasyBot.Hint.Abstractions;
+using TeasyBot.Hint.Services;
+using TeasyBot.Hint.Services.Abstractions;
+using TeasyBot.Hint.Settings;
 
 namespace TeasyBot.Service.Extensions
 {
@@ -51,8 +52,8 @@ namespace TeasyBot.Service.Extensions
 
             services.Configure<LovenseConfig>(lovenseSection);
             services.Configure<DiscordConfig>(configuration.GetSection("Discord"));
-            services.Configure<EggConfig>(configuration.GetSection("Egg"));
-            services.Configure<EggHuntConfig>(configuration.GetSection("EggHunt"));
+            services.Configure<HintConfig>(configuration.GetSection("Hint"));
+            services.Configure<HintHuntConfig>(configuration.GetSection("HintHunt"));
             services.Configure<DiscordWebHookConfig>(configuration.GetSection("DiscordWebHook"));
             var discordConfig = new DiscordSocketConfig()
             {
@@ -69,16 +70,16 @@ namespace TeasyBot.Service.Extensions
             services.AddSingleton<IEnableCommandService, EnableCommandService>();
             services.AddSingleton<IScoreCommandService, ScoreCommandService>();
             services.AddSingleton<IChannelCommandService, ChannelCommandService>();
-            services.AddSingleton<IEggHuntSlashCommandService, EggHuntSlashCommandService>();
+            services.AddSingleton<IHintHuntSlashCommandService, HintHuntSlashCommandService>();
             services.AddSingleton<IButtonInteractionService, ButtonInteractionService>();
             services.AddSingleton<IDiscordMessageSender, DiscordMessageSender>();
             services.AddSingleton<IWebHookMessageSender, WebHookMessageSender>();
 
-            services.AddSingleton<IEggHunt, EggHunt>();
+            services.AddSingleton<IHintHunt, HintHunt>();
             services.AddSingleton<ILovenseService, LovenseService>();
             services.AddSingleton<IMemoryCacheService, MemoryCacheService>();
-            services.AddSingleton<IEggService, EggService>();
-            services.AddSingleton<IEggHuntService, EggHuntService>();
+            services.AddSingleton<IHintService, HintService>();
+            services.AddSingleton<IHintHuntService, HintHuntService>();
             services.AddSingleton<ILeaderboardService, LeaderboardService>();
             services.AddSingleton<IApprovedChannelsService, ApprovedChannelsService>();
             services.AddSingleton<ILeaderboardRepository>(_ =>

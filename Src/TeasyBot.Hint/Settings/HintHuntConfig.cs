@@ -1,6 +1,6 @@
-﻿namespace TeasyBot.Egg.Settings;
+﻿namespace TeasyBot.Hint.Settings;
 
-public class EggHuntConfig
+public class HintHuntConfig
 {
     public int TimerSeconds { get; set; }
     public int Chance { get; set; }

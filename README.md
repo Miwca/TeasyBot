@@ -9,7 +9,7 @@ First developed for the Lovense Easter Dev Jam "Egg Hunt" challenge, Naughty Bun
 ## Setup (Backend)
 Initial Requirements:
 - [.NET 8.0 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0) 
-- [LocalDB Server or a SQL Server](https://learn.microsoft.com/en-us/sql/database-engine/configure-windows/sql-server-express-localdb?view=sql-server-ver16)
+- [MySQL Server](https://severalnines.com/blog/mysql-docker-building-container-image/)
 - [Discord Bot](https://discord.com/developers/applications)
 - [Lovense Developer Account](https://www.lovense.com/user/account/profile)
 
@@ -19,8 +19,9 @@ Initial Requirements:
    - Replace the `Discord.Token` with your bot token
    - Replace the `Discord.Admins` with the list of user ids that are allowed to run admin commands
    - Replace the `Lovense.DeveloperToken` with your Lovense API token
-   - Replace the `ConnectionStrings.Leaderboard` with your connection string to a SQL Database.
-4. Run the bot and enjoy!
+   - Replace the `ConnectionStrings.Leaderboard` with your connection string to a MySQL Database.
+4. **OPTIONAL:** Run MySQL in Docker by running the following command: `sudo docker run -d --restart always --name=mysql1 -e MYSQL_ROOT_PASSWORD='SuperSecret1' -v /storage/mysql1/mysql-datadir:/var/lib/mysql mysql`
+5. Run the bot and enjoy!
 
 ## Setup (Discord side)
 1. Invite the bot to your server

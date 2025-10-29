@@ -3,12 +3,12 @@ using TeasyBot.Lovense.Services.Abstractions;
 using Discord;
 using Discord.WebSocket;
 using Microsoft.Extensions.Logging;
-using TeasyBot.Egg.Services.Abstractions;
 using TeasyBot.Database.Services.Abstractions;
 using TeasyBot.Cache.Services.Abstractions;
-using TeasyBot.Egg.Settings;
+using TeasyBot.Hint.Settings;
 using Microsoft.Extensions.Options;
 using TeasyBot.Discord.Sender.Abstractions;
+using TeasyBot.Hint.Services.Abstractions;
 using TeasyBot.Lovense.Exceptions;
 
 namespace TeasyBot.Discord.Services
@@ -18,8 +18,8 @@ namespace TeasyBot.Discord.Services
         private readonly ILogger<EnableCommandService> _logger;
         private readonly DiscordSocketClient _discordClient;
         private readonly ILovenseService _lovenseService;
-        private readonly IEggService _eggService;
-        private readonly IEggHuntService _eggHuntService;
+        private readonly IHintService _hintService;
+        private readonly IHintHuntService _hintHuntService;
         private readonly ILeaderboardService _leaderboardService;
         private readonly IMemoryCacheService _memoryCacheService;
         private readonly IWebHookMessageSender _webHookMessageSender;
@@ -27,15 +27,15 @@ namespace TeasyBot.Discord.Services
 
 
         public ButtonInteractionService(ILogger<EnableCommandService> logger, DiscordSocketClient discordClient,
-            ILovenseService lovenseService, IEggService eggService, IEggHuntService eggHuntService,
+            ILovenseService lovenseService, IHintService hintService, IHintHuntService hintHuntService,
             ILeaderboardService leaderboardService, IMemoryCacheService memoryCacheService, IWebHookMessageSender webHookMessageSender,
-            IOptions<EggHuntConfig> config)
+            IOptions<HintHuntConfig> config)
         {
             _logger = logger;
             _discordClient = discordClient;
             _lovenseService = lovenseService;
-            _eggService = eggService;
-            _eggHuntService = eggHuntService;
+            _hintService = hintService;
+            _hintHuntService = hintHuntService;
             _leaderboardService = leaderboardService;
             _memoryCacheService = memoryCacheService;
             _webHookMessageSender = webHookMessageSender;
@@ -74,7 +74,7 @@ Or Connect via the Code:
                     .WithColor(215, 42, 119) // Lovense Pink
                     .WithFooter("TeasyBot - Made by @miwca and @kitty_cass");
 
-                _eggHuntService.AddParticipantToEggHunt(component.GuildId.ToString()!, component.User.Id.ToString());
+                _hintHuntService.AddParticipantToHintHunt(component.GuildId.ToString()!, component.User.Id.ToString());
                 await component.FollowupAsync(embed: embedBuilder.Build(), ephemeral: true);
             }
             catch (GeneralLovenseException gle)
@@ -99,7 +99,7 @@ Or Connect via the Code:
         {
             await component.DeferAsync();
 
-            _eggHuntService.RemoveParticipantFromEggHunt(component.GuildId.ToString()!, component.User.Id.ToString());
+            _hintHuntService.RemoveParticipantFromHintHunt(component.GuildId.ToString()!, component.User.Id.ToString());
 
             await component.FollowupAsync("Successfully left, we hope you join us again later.", ephemeral: true);
         }
@@ -109,21 +109,21 @@ Or Connect via the Code:
             await component.RespondAsync("Invalid button interaction.", ephemeral: true);
         }
 
-        public async Task SendTestEggButtonHandler(SocketMessageComponent component)
+        public async Task SendTestHintButtonHandler(SocketMessageComponent component)
         {
             await component.DeferAsync(ephemeral: true);
 
-            var randomEgg = _eggService.GetRandomEgg();
+            var randomHint = _hintService.GetRandomHint();
 
             var embedBuilder = new EmbedBuilder()
-                .WithTitle(randomEgg.Name)
-                .WithDescription(randomEgg.Description)
-                .WithImageUrl(randomEgg.ImageUrl)
+                .WithTitle(randomHint.Name)
+                .WithDescription(randomHint.Description)
+                .WithImageUrl(randomHint.ImageUrl)
                 .WithColor(Color.Purple)
                 .WithFooter("TeasyBot - Made by @miwca and @kitty_cass");
 
             var ComponentBuilder = new ComponentBuilder()
-                .WithButton("Collect Egg", $"find-{randomEgg.Name}", ButtonStyle.Success);
+                .WithButton("Collect Hint", $"find-{randomHint.Name}", ButtonStyle.Success);
 
             await component.FollowupAsync(
                 embed: embedBuilder.Build(),
@@ -132,39 +132,39 @@ Or Connect via the Code:
             );
         }
 
-        public async Task FindEggButtonHandler(SocketMessageComponent component)
+        public async Task FindHintButtonHandler(SocketMessageComponent component)
         {
             await component.DeferAsync(ephemeral: true);
 
             // Check if the user is not participating in the event
-            var isParticipating = _eggHuntService.IsParticipantInEggHunt(component.GuildId.ToString()!, component.User.Id.ToString());
+            var isParticipating = _hintHuntService.IsParticipantInHintHunt(component.GuildId.ToString()!, component.User.Id.ToString());
             if (!isParticipating)
             {
-                await component.FollowupAsync("You are not participating in the Easter Egg Hunt.", ephemeral: true);
+                await component.FollowupAsync("You are not participating in the Hint Hunt.", ephemeral: true);
                 return;
             }
 
             // Check if the message is older than 10 minutes
-            // This is a safety check to prevent people from claiming eggs after the Cache possibly has expired to know if the egg has been fully claimed.
+            // This is a safety check to prevent people from claiming hints after the Cache possibly has expired to know if the hint has been fully claimed.
             if (DateTimeOffset.UtcNow - component.Message.CreatedAt > TimeSpan.FromMinutes(10))
             {
-                await component.FollowupAsync("This Easter Egg has expired.", ephemeral: true);
+                await component.FollowupAsync("This Hint has expired.", ephemeral: true);
 
-                await DisableFindEggButton(component);
+                await DisableFindHintButton(component);
                 return;
             }
 
-            // Check if the user has already redeemed this egg
+            // Check if the user has already redeemed this hint
             var cacheKey = $"{component.GuildId}-{component.User.Id}-{component.Message.Id}";
             var cacheValue = _memoryCacheService.Get<bool>(cacheKey);
 
             if (cacheValue)
             {
-                await component.FollowupAsync("You have already redeemed this egg.", ephemeral: true);
+                await component.FollowupAsync("You have already redeemed this hint.", ephemeral: true);
                 return;
             }
 
-            // Check if the egg is fully claimed
+            // Check if the hint is fully claimed
             var claimedCount = _memoryCacheService.Get<int>($"{component.Message.Id}-claimed");
             claimedCount++;
             _memoryCacheService.Set($"{component.Message.Id}-claimed", claimedCount);
@@ -172,26 +172,26 @@ Or Connect via the Code:
             var participantCount = _memoryCacheService.Get<int>($"{component.Message.Id}-participant-count");
             if (claimedCount > participantCount || claimedCount > _configMaxClaimed)
             {
-                await component.FollowupAsync("All Easter Eggs have been claimed.", ephemeral: true);
+                await component.FollowupAsync("All Hints have been claimed.", ephemeral: true);
                 _memoryCacheService.Set($"{component.GuildId}-hunt-ongoing", false);
 
-                await DisableFindEggButton(component);
+                await DisableFindHintButton(component);
             }
 
             if (claimedCount == participantCount || claimedCount == _configMaxClaimed)
             {
                 _memoryCacheService.Set($"{component.GuildId}-hunt-ongoing", false);
-                await DisableFindEggButton(component);
+                await DisableFindHintButton(component);
 
-                var eggName = component.Data.CustomId.Replace("find-", string.Empty);
-                var currentEgg = _eggService.GetEggByName(eggName);
-                if (currentEgg is null)
+                var hintName = component.Data.CustomId.Replace("find-", string.Empty);
+                var currentHint = _hintService.GetHintByName(hintName);
+                if (currentHint is null)
                 {
-                    await component.FollowupAsync("Easter Egg not found? Something bad has happened...", ephemeral: true);
+                    await component.FollowupAsync("Hint not found? Something bad has happened...", ephemeral: true);
                     return;
                 }
 
-                var hunt = _eggHuntService.GetEggHuntForGuild(component.GuildId.ToString()!);
+                var hunt = _hintHuntService.GetHintHuntForGuild(component.GuildId.ToString()!);
 
                 try
                 {
@@ -200,31 +200,31 @@ Or Connect via the Code:
                         new Lovense.Dtos.WebCommandPatternDto()
                         {
                             Rule = "V:1;F:v;S:250#",
-                            Strength = currentEgg.Pattern,
+                            Strength = currentHint.Pattern,
                             Seconds = 12,
                         }
                     );
                 }
                 catch (GeneralLovenseException gle)
                 {
-                    _logger.LogError($"Lovense error occurred while sending egg pattern. {gle.Message}");
-                    await _webHookMessageSender.SendErrorAsync($"Lovense error occurred while sending egg pattern. {gle.Message}", gle.StatusCode);
+                    _logger.LogError($"Lovense error occurred while sending hint pattern. {gle.Message}");
+                    await _webHookMessageSender.SendErrorAsync($"Lovense error occurred while sending hint pattern. {gle.Message}", gle.StatusCode);
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError($"General exception occurred while sending egg pattern. {e.Message}");
-                    await _webHookMessageSender.SendErrorAsync($"General exception occurred while sending egg pattern. {e.Message}");
+                    _logger.LogError($"General exception occurred while sending hint pattern. {e.Message}");
+                    await _webHookMessageSender.SendErrorAsync($"General exception occurred while sending hint pattern. {e.Message}");
                 }
             }
 
             _memoryCacheService.Set(cacheKey, true);
 
             // ---------------------------------------
-            // Send the easter egg message
+            // Send the easter hint message
 
             var embedBuilder = new EmbedBuilder()
-                .WithTitle("Easter Egg")
-                .WithDescription("You found the Easter Egg! 🥚")
+                .WithTitle("Hint")
+                .WithDescription("You found the Hint!")
                 .WithColor(Color.LighterGrey)
                 .WithFooter("TeasyBot - Made by @miwca and @kitty_cass");
 
@@ -240,10 +240,10 @@ Or Connect via the Code:
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
         }
 
-        private async Task DisableFindEggButton(SocketMessageComponent component)
+        private async Task DisableFindHintButton(SocketMessageComponent component)
         {
             var componentBuilder = new ComponentBuilder()
-                .WithButton("No more eggs left.", "______", ButtonStyle.Danger, disabled: true)
+                .WithButton("No more hints left.", "______", ButtonStyle.Danger, disabled: true)
                 .Build();
 
             // Get the channel

@@ -4,24 +4,24 @@ using TeasyBot.Lovense.Exceptions;
 using Microsoft.Extensions.Logging;
 using TeasyBot.Discord.Sender.Abstractions;
 using TeasyBot.Discord.Services.Abstractions;
-using TeasyBot.Egg.Services.Abstractions;
+using TeasyBot.Hint.Services.Abstractions;
 using TeasyBot.Lovense.Services.Abstractions;
 
 namespace TeasyBot.Discord.Services;
 
-public class EggHuntSlashCommandService : IEggHuntSlashCommandService
+public class HintHuntSlashCommandService : IHintHuntSlashCommandService
 {
-    private readonly ILogger<EggHuntSlashCommandService> _logger;
+    private readonly ILogger<HintHuntSlashCommandService> _logger;
     private readonly ILovenseService _lovenseService;
-    private readonly IEggHuntService _eggHuntService;
+    private readonly IHintHuntService _hintHuntService;
     private readonly IWebHookMessageSender _webHookMessageSender;
 
-    public EggHuntSlashCommandService(ILogger<EggHuntSlashCommandService>  logger, ILovenseService lovenseService, 
-        IEggHuntService eggHuntService, IWebHookMessageSender webHookMessageSender)
+    public HintHuntSlashCommandService(ILogger<HintHuntSlashCommandService>  logger, ILovenseService lovenseService, 
+        IHintHuntService hintHuntService, IWebHookMessageSender webHookMessageSender)
     {
         _logger = logger;
         _lovenseService = lovenseService;
-        _eggHuntService = eggHuntService;
+        _hintHuntService = hintHuntService;
         _webHookMessageSender = webHookMessageSender;
     }
 
@@ -56,7 +56,7 @@ Or Connect via the Code:
                 .WithColor(215, 42, 119) // Lovense Pink
             .WithFooter("TeasyBot - Made by @miwca and @kitty_cass");
 
-            _eggHuntService.AddParticipantToEggHunt(command.GuildId.ToString()!, command.User.Id.ToString());
+            _hintHuntService.AddParticipantToHintHunt(command.GuildId.ToString()!, command.User.Id.ToString());
             await command.FollowupAsync(embed: embedBuilder.Build(), ephemeral: true);
         }
         catch (GeneralLovenseException gle)
@@ -81,7 +81,7 @@ Or Connect via the Code:
     {
         await command.DeferAsync();
 
-        _eggHuntService.RemoveParticipantFromEggHunt(command.GuildId.ToString()!, command.User.Id.ToString());
+        _hintHuntService.RemoveParticipantFromHintHunt(command.GuildId.ToString()!, command.User.Id.ToString());
 
         await command.FollowupAsync("Successfully left, we hope you join us again later.", ephemeral: true);
     }

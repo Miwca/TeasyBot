@@ -13,10 +13,10 @@
 
 
         public const string Enable = "enable";
-        public const string EnableDescription = "[Admin] Enables Egg Hunting";
+        public const string EnableDescription = "[Admin] Enables Hint Hunting";
 
         public const string Disable = "disable";
-        public const string DisableDescription = "[Admin] Disables Egg Hunting";
+        public const string DisableDescription = "[Admin] Disables Hint Hunting";
 
 
         public const string Leaderboard = "leaderboard";

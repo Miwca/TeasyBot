@@ -1,4 +1,4 @@
-﻿namespace TeasyBot.Egg.Dtos;
+﻿namespace TeasyBot.Hint.Dtos;
 
 public class DudDto
 {

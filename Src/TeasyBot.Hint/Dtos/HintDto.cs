@@ -1,6 +1,6 @@
-﻿namespace TeasyBot.Egg.Dtos
+﻿namespace TeasyBot.Hint.Dtos
 {
-    public class EggDto
+    public class HintDto
     {
         public string Name { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;

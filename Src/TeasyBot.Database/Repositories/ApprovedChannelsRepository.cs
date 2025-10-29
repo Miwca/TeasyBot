@@ -1,5 +1,5 @@
-﻿using System.Data.SqlClient;
-using Dapper;
+﻿using Dapper;
+using MySqlConnector;
 using TeasyBot.Database.Repositories.Abstractions;
 using TeasyBot.Leaderboard.Dtos;
 
@@ -22,10 +22,10 @@ SELECT Id,
     ChannelId
 FROM ApprovedChannels
 WHERE GuildId = @GuildId
-AND ChannelId = @ChannelId
+AND ChannelId = @ChannelId;
 ";
 
-        await using var connection = new SqlConnection(_connectionString);
+        await using var connection = new MySqlConnection(_connectionString);
         return connection.Query<ApprovedChannelDto>(sql, new
         {
             GuildId = guildId,
@@ -40,10 +40,10 @@ SELECT Id,
     GuildId,
     ChannelId
 FROM ApprovedChannels
-WHERE GuildId = @GuildId
+WHERE GuildId = @GuildId;
 ";
 
-        await using var connection = new SqlConnection(_connectionString);
+        await using var connection = new MySqlConnection(_connectionString);
         return connection.Query<ApprovedChannelDto>(sql, new
         {
             GuildId = guildId
@@ -64,16 +64,16 @@ VALUES (
 	@Id,
 	@GuildId,
     @ChannelId
-)
+);
 
 SELECT Id,
     GuildId,
     ChannelId
 FROM ApprovedChannels
-WHERE Id = @Id
+WHERE Id = @Id;
 ";
 
-        await using var connection = new SqlConnection(_connectionString);
+        await using var connection = new MySqlConnection(_connectionString);
         return connection.Query<ApprovedChannelDto>(sql, new
         {
             GuildId = guildId,
@@ -86,10 +86,10 @@ WHERE Id = @Id
     {
         const string sql = @"
 DELETE FROM ApprovedChannels
-WHERE Id = @Id
+WHERE Id = @Id;
 ";
 
-        await using var connection = new SqlConnection(_connectionString);
+        await using var connection = new MySqlConnection(_connectionString);
         connection.Query(sql, new
         {
             Id = id
@@ -100,10 +100,10 @@ WHERE Id = @Id
     {
         const string sql = @"
 DELETE FROM ApprovedChannels
-WHERE GuildId = @GuildId
+WHERE GuildId = @GuildId;
 ";
 
-        await using var connection = new SqlConnection(_connectionString);
+        await using var connection = new MySqlConnection(_connectionString);
         connection.Query(sql, new
         {
             GuildId = guildId

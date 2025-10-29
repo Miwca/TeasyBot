@@ -15,11 +15,11 @@ public class SlashCommandHandler
     private readonly IEnableCommandService _enableCommandService;
     private readonly IScoreCommandService _scoreCommandService;
     private readonly IChannelCommandService _channelCommandService;
-    private readonly IEggHuntSlashCommandService _eggHuntSlashCommandService;
+    private readonly IHintHuntSlashCommandService _hintHuntSlashCommandService;
 
     public SlashCommandHandler(ILogger<SlashCommandHandler> logger, IOptions<DiscordConfig> discordSettings, 
         IEnableCommandService enableCommandService, IScoreCommandService scoreCommandService, 
-        IChannelCommandService channelCommandService, IEggHuntSlashCommandService eggHuntSlashCommandService)
+        IChannelCommandService channelCommandService, IHintHuntSlashCommandService hintHuntSlashCommandService)
     {
         _logger = logger;
         _discordSettings = discordSettings.Value;
@@ -27,7 +27,7 @@ public class SlashCommandHandler
         _enableCommandService = enableCommandService;
         _scoreCommandService = scoreCommandService;
         _channelCommandService = channelCommandService;
-        _eggHuntSlashCommandService = eggHuntSlashCommandService;
+        _hintHuntSlashCommandService = hintHuntSlashCommandService;
     }
 
     public async Task SlashCommandExecutedAsync(SocketSlashCommand command)
@@ -64,10 +64,10 @@ public class SlashCommandHandler
                     await _scoreCommandService.HandleProfileCommandAsync(command);
                     break;
                 case SlashCommandConstants.Join:
-                    await _eggHuntSlashCommandService.JoinSlashCommandHandlerAsync(command);
+                    await _hintHuntSlashCommandService.JoinSlashCommandHandlerAsync(command);
                     break;
                 case SlashCommandConstants.Leave:
-                    await _eggHuntSlashCommandService.LeaveSlashCommandHandlerAsync(command);
+                    await _hintHuntSlashCommandService.LeaveSlashCommandHandlerAsync(command);
                     break;
                 default:
                     _logger.LogWarning($"Unknown command: {command.Data.Name}");
