@@ -12,9 +12,3 @@ services:
       LOVENSE__Token: ${LOVENSE_TOKEN}
     # ports:
     #   - "8080:8080"
-    networks:
-      - default
-
-networks:
-  default:
-    name: bridge
