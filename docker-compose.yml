@@ -6,8 +6,6 @@ services:
     image: teasybot:latest
     container_name: teasybot
     restart: always
-    env_file:
-      - /opt/teasybot/.env
     environment:
       ConnectionStrings__Leaderboard: ${DB_CONN}
       DISCORD__Token: ${DISCORD_TOKEN}
