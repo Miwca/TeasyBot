@@ -9,6 +9,6 @@ services:
     environment:
       ConnectionStrings__Leaderboard: ${DB_CONN}
       DISCORD__Token: ${DISCORD_TOKEN}
-      LOVENSE__Token: ${LOVENSE_TOKEN}
+      LOVENSE__DeveloperToken: ${LOVENSE_TOKEN}
     # ports:
     #   - "8080:8080"
