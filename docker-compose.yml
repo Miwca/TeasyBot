@@ -1,0 +1,22 @@
+services:
+  teasybot:
+    build:
+      context: ./Src
+      dockerfile: TeasyBot.Service/Dockerfile
+    image: teasybot:latest
+    container_name: teasybot
+    restart: always
+    env_file:
+      - /opt/teasybot/.env
+    environment:
+      ConnectionStrings__Leaderboard: ${DB_CONN}
+      DISCORD__Token: ${DISCORD_TOKEN}
+      LOVENSE__Token: ${LOVENSE_TOKEN}
+    # ports:
+    #   - "8080:8080"
+    networks:
+      - default
+
+networks:
+  default:
+    name: bridge
