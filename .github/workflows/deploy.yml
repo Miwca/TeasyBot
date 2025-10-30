@@ -5,12 +5,18 @@ on:
 jobs:
   build-and-restart:
     runs-on: self-hosted
+    env:
+      DB_CONN: ${{ secrets.DB_CONN }}
+      DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
+      LOVENSE_TOKEN: ${{ secrets.LOVENSE_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build & (re)start with Compose
+      - name: Build images
         run: |
-          docker compose pull || true
-          docker compose build --no-cache
-          docker compose up -d
+          docker compose build
+
+      - name: Start/Restart containers
+        run: |
+          docker compose up -d --remove-orphans
