@@ -1,9 +1,3 @@
-name: Local Build & Restart (Self-hosted)
-
-on:
-  push:
-    branches: [ "main" ]
-
 jobs:
   build-and-restart:
     runs-on: self-hosted
@@ -15,25 +9,50 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Show compose env & file
+      - name: Resolve compose path
+        id: paths
         shell: bash
         run: |
-          echo "GITHUB_WORKSPACE=$GITHUB_WORKSPACE"
+          set -euo pipefail
+          # hard-code the path you verified:
+          COMPOSE="/opt/actions-runner/teasybot/_work/TeasyBot/TeasyBot/docker-compose.yml"
+          test -f "$COMPOSE" || { echo "::error::compose file not found at $COMPOSE"; exit 1; }
+          echo "compose=$COMPOSE" >> "$GITHUB_OUTPUT"
+          echo "projectdir=$(dirname "$COMPOSE")" >> "$GITHUB_OUTPUT"
+
+      - name: Sanity check (show file & env that can break compose)
+        shell: bash
+        run: |
+          set -x
+          id && whoami
+          ls -l "${{ steps.paths.outputs.compose }}"
+          head -n 20 "${{ steps.paths.outputs.compose }}"
           env | grep -E '^(COMPOSE|DOCKER)_' || true
-          ls -l "/opt/actions-runner/teasybot/_work/TeasyBot/TeasyBot/docker-compose.yml"
-          head -n 20 "/opt/actions-runner/teasybot/_work/TeasyBot/TeasyBot/docker-compose.yml"
 
-      - name: Validate compose file (config)
+      - name: Validate with Compose v2
         shell: bash
         run: |
-          docker compose -f "/opt/actions-runner/teasybot/_work/TeasyBot/TeasyBot/docker-compose.yml" config > /dev/null
+          # neutralize env overrides that can cause "no configuration file provided"
+          unset COMPOSE_FILE COMPOSE_PATH_SEPARATOR COMPOSE_PROFILES COMPOSE_PROJECT_NAME
+          docker compose \
+            --project-directory "${{ steps.paths.outputs.projectdir }}" \
+            -f "${{ steps.paths.outputs.compose }}" \
+            config > /dev/null
 
-      - name: Build images
+      - name: Build images (v2)
         shell: bash
         run: |
-          docker compose -f "/opt/actions-runner/teasybot/_work/TeasyBot/TeasyBot/docker-compose.yml" build
+          unset COMPOSE_FILE COMPOSE_PATH_SEPARATOR COMPOSE_PROFILES COMPOSE_PROJECT_NAME
+          docker compose \
+            --project-directory "${{ steps.paths.outputs.projectdir }}" \
+            -f "${{ steps.paths.outputs.compose }}" \
+            build
 
-      - name: Start/Restart containers
+      - name: Start/Restart containers (v2)
         shell: bash
         run: |
-          docker compose -f "/opt/actions-runner/teasybot/_work/TeasyBot/TeasyBot/docker-compose.yml" up -d --remove-orphans
+          unset COMPOSE_FILE COMPOSE_PATH_SEPARATOR COMPOSE_PROFILES COMPOSE_PROJECT_NAME
+          docker compose \
+            --project-directory "${{ steps.paths.outputs.projectdir }}" \
+            -f "${{ steps.paths.outputs.compose }}" \
+            up -d --remove-orphans
