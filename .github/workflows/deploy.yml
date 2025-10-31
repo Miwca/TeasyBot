@@ -4,10 +4,6 @@ on:
   push:
     branches: [ "main" ]
 
-defaults:
-  run:
-    working-directory: ${{ github.workspace }}
-
 jobs:
   build-and-restart:
     runs-on: self-hosted
@@ -15,6 +11,7 @@ jobs:
       DB_CONN: ${{ secrets.DB_CONN }}
       DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
       LOVENSE_TOKEN: ${{ secrets.LOVENSE_TOKEN }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -23,9 +20,12 @@ jobs:
         run: |
           pwd
           ls -la
+        working-directory: ${{ github.workspace }}
 
       - name: Build images
         run: docker compose build
+        working-directory: ${{ github.workspace }}
 
       - name: Start/Restart containers
         run: docker compose up -d --remove-orphans
+        working-directory: ${{ github.workspace }}
