@@ -35,30 +35,18 @@ jobs:
           head -n 20 "${{ steps.paths.outputs.compose }}"
           env | grep -E '^(COMPOSE|DOCKER)_' || true
 
-      - name: Validate with Compose v2
+      - name: Validate with legacy docker-compose (diagnostic)
+        if: always()
         shell: bash
         run: |
-          # neutralize env overrides that can cause "no configuration file provided"
-          unset COMPOSE_FILE COMPOSE_PATH_SEPARATOR COMPOSE_PROFILES COMPOSE_PROJECT_NAME
-          docker compose \
-            --project-directory "${{ steps.paths.outputs.projectdir }}" \
+          docker-compose \
             -f "${{ steps.paths.outputs.compose }}" \
             config > /dev/null
 
-      - name: Build images (v2)
+      - name: Build+Up with legacy docker-compose (diagnostic)
+        if: always()
         shell: bash
         run: |
-          unset COMPOSE_FILE COMPOSE_PATH_SEPARATOR COMPOSE_PROFILES COMPOSE_PROJECT_NAME
-          docker compose \
-            --project-directory "${{ steps.paths.outputs.projectdir }}" \
+          docker-compose \
             -f "${{ steps.paths.outputs.compose }}" \
-            build
-
-      - name: Start/Restart containers (v2)
-        shell: bash
-        run: |
-          unset COMPOSE_FILE COMPOSE_PATH_SEPARATOR COMPOSE_PROFILES COMPOSE_PROJECT_NAME
-          docker compose \
-            --project-directory "${{ steps.paths.outputs.projectdir }}" \
-            -f "${{ steps.paths.outputs.compose }}" \
-            up -d --remove-orphans
+            up -d --build --remove-orphans
