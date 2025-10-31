@@ -1,9 +1,7 @@
 name: Local Build & Restart (Self-hosted)
-
 on:
   push:
     branches: [ "main" ]
-
 jobs:
   build-and-restart:
     runs-on: self-hosted
@@ -15,38 +13,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Resolve compose path
-        id: paths
-        shell: bash
+      - name: Build images
         run: |
-          set -euo pipefail
-          # hard-code the path you verified:
-          COMPOSE="/opt/actions-runner/teasybot/_work/TeasyBot/TeasyBot/docker-compose.yml"
-          test -f "$COMPOSE" || { echo "::error::compose file not found at $COMPOSE"; exit 1; }
-          echo "compose=$COMPOSE" >> "$GITHUB_OUTPUT"
-          echo "projectdir=$(dirname "$COMPOSE")" >> "$GITHUB_OUTPUT"
+          docker compose build
 
-      - name: Sanity check (show file & env that can break compose)
-        shell: bash
+      - name: Start/Restart containers
         run: |
-          set -x
-          id && whoami
-          ls -l "${{ steps.paths.outputs.compose }}"
-          head -n 20 "${{ steps.paths.outputs.compose }}"
-          env | grep -E '^(COMPOSE|DOCKER)_' || true
-
-      - name: Validate with legacy docker-compose (diagnostic)
-        if: always()
-        shell: bash
-        run: |
-          docker-compose \
-            -f "${{ steps.paths.outputs.compose }}" \
-            config > /dev/null
-
-      - name: Build+Up with legacy docker-compose (diagnostic)
-        if: always()
-        shell: bash
-        run: |
-          docker-compose \
-            -f "${{ steps.paths.outputs.compose }}" \
-            up -d --build --remove-orphans
+          docker compose up -d --remove-orphans
