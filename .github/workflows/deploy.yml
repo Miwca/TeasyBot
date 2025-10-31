@@ -1,7 +1,13 @@
 name: Local Build & Restart (Self-hosted)
+
 on:
   push:
     branches: [ "main" ]
+
+defaults:
+  run:
+    working-directory: ${{ github.workspace }}
+
 jobs:
   build-and-restart:
     runs-on: self-hosted
@@ -13,10 +19,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Build images
+      - name: Sanity check path
         run: |
-          docker compose build
+          pwd
+          ls -la
+
+      - name: Build images
+        run: docker compose build
 
       - name: Start/Restart containers
-        run: |
-          docker compose up -d --remove-orphans
+        run: docker compose up -d --remove-orphans
