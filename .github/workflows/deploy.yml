@@ -15,6 +15,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Sanity check compose file
+        run: |
+          ls -l "$GITHUB_WORKSPACE/docker-compose.yml"
+          head -n 20 "$GITHUB_WORKSPACE/docker-compose.yml"
+
       - name: Sanity check workspace & compose
         shell: bash
         run: |
