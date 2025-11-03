@@ -183,7 +183,7 @@ namespace TeasyBot.Hint
         {
             var embedBuilder = new EmbedBuilder()
                 .WithTitle(dud.Name)
-                .WithDescription(BuildDescription(dud.Description))
+                .WithDescription(dud.Description)
                 .WithImageUrl(dud.ImageUrl)
                 .WithColor(Color.Purple)
                 .WithFooter("TeasyBot - Made by @miwca and @kitty_cass");
