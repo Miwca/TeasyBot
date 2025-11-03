@@ -168,7 +168,7 @@ namespace TeasyBot.Hint
         {
             var embedBuilder = new EmbedBuilder()
                 .WithTitle(hint.Name)
-                .WithDescription(hint.Description)
+                .WithDescription(BuildDescription(hint.Description))
                 .WithImageUrl(hint.ImageUrl)
                 .WithColor(Color.Purple)
                 .WithFooter("TeasyBot - Made by @miwca and @kitty_cass");
@@ -183,12 +183,19 @@ namespace TeasyBot.Hint
         {
             var embedBuilder = new EmbedBuilder()
                 .WithTitle(dud.Name)
-                .WithDescription(dud.Description)
+                .WithDescription(BuildDescription(dud.Description))
                 .WithImageUrl(dud.ImageUrl)
                 .WithColor(Color.Purple)
                 .WithFooter("TeasyBot - Made by @miwca and @kitty_cass");
 
             return await _messageSender.SendMessageToChannelAsync(channelId, embedBuilder);
+        }
+
+        private string BuildDescription(string description)
+        {
+            if (string.IsNullOrEmpty(_config.ProductUrl)) return description;
+
+            return $"{description}\n\nGet yours here: {_config.ProductUrl}";
         }
     }
 }
