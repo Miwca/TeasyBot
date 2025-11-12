@@ -174,7 +174,7 @@ namespace TeasyBot.Hint
                 .WithFooter("TeasyBot - Made by @miwca and @kitty_cass");
 
             var componentBuilder = new ComponentBuilder()
-                .WithButton("Collect Hint", $"find-{hint.Name}", ButtonStyle.Success);
+                .WithButton("Collect Part", $"find-{hint.Name}", ButtonStyle.Success);
 
             return await _messageSender.SendMessageToChannelAsync(channelId, embedBuilder, componentBuilder);
         }

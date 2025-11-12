@@ -123,7 +123,7 @@ Or Connect via the Code:
                 .WithFooter("TeasyBot - Made by @miwca and @kitty_cass");
 
             var ComponentBuilder = new ComponentBuilder()
-                .WithButton("Collect Hint", $"find-{randomHint.Name}", ButtonStyle.Success);
+                .WithButton("Collect Part", $"find-{randomHint.Name}", ButtonStyle.Success);
 
             await component.FollowupAsync(
                 embed: embedBuilder.Build(),
